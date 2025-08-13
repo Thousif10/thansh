@@ -1,0 +1,6 @@
+apache ALL=NOPASSWD: /bin/systemctl start httpd, /bin/systemctl stop httpd, \
+/bin/systemctl restart httpd, /bin/systemctl status httpd, \
+/bin/systemctl start sshd, /bin/systemctl stop sshd, \
+/bin/systemctl restart sshd, /bin/systemctl status sshd, \
+/bin/systemctl start firewalld, /bin/systemctl stop firewalld, \
+/bin/systemctl restart firewalld, /bin/systemctl status firewalld
