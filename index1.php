@@ -1,27 +1,24 @@
 <?php
-// Service list
+// Define services
 $services = [
-    ['name' => 'httpd', 'display' => 'Apache Web Server', 'description' => 'Handles web requests'],
-    ['name' => 'sshd', 'display' => 'SSH Server', 'description' => 'Allows secure shell access'],
-    ['name' => 'firewalld', 'display' => 'Firewall Service', 'description' => 'Manages firewall rules'],
+    ['name' => 'httpd', 'display' => 'Apache Web Server', 'desc' => 'Handles web requests'],
+    ['name' => 'sshd', 'display' => 'SSH Server', 'desc' => 'Allows secure shell access'],
+    ['name' => 'firewalld', 'display' => 'Firewall Service', 'desc' => 'Manages firewall rules']
 ];
 
-// Function to get status
-function getStatus($service) {
-    $output = shell_exec("sudo systemctl is-active " . escapeshellarg($service) . " 2>&1");
-    return trim($output) === "active" ? "Running" : "Stopped";
+// Handle enable/disable actions
+if (isset($_POST['service']) && isset($_POST['action'])) {
+    $service = escapeshellcmd($_POST['service']);
+    $action = $_POST['action'] === 'enable' ? 'start' : 'stop';
+    exec("sudo systemctl $action $service 2>&1", $output, $return_var);
+    echo json_encode(['status' => $return_var === 0 ? 'success' : 'error', 'output' => implode("\n", $output)]);
+    exit;
 }
 
-// Handle enable/disable action
-if (isset($_GET['action']) && isset($_GET['service'])) {
-    $service = escapeshellarg($_GET['service']);
-    if ($_GET['action'] === 'start') {
-        shell_exec("sudo systemctl start $service 2>&1");
-    } elseif ($_GET['action'] === 'stop') {
-        shell_exec("sudo systemctl stop $service 2>&1");
-    }
-    header("Location: index.php");
-    exit;
+// Function to get service status
+function getServiceStatus($service) {
+    exec("systemctl is-active $service 2>&1", $output, $return_var);
+    return trim($output[0]) === 'active' ? 'Running' : 'Stopped';
 }
 ?>
 <!DOCTYPE html>
@@ -29,44 +26,52 @@ if (isset($_GET['action']) && isset($_GET['service'])) {
 <head>
     <title>Service Management</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h2 { color: #333; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background: #f4f4f4; }
-        a.button { padding: 6px 12px; background: #007BFF; color: #fff; text-decoration: none; border-radius: 4px; }
-        a.button.stop { background: #dc3545; }
+        body { font-family: Arial; background: #f5f5f5; margin: 0; padding: 20px; }
+        h1 { background: #333; color: #fff; padding: 10px; }
+        table { border-collapse: collapse; width: 100%; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background: #444; color: #fff; }
+        button { padding: 5px 10px; }
     </style>
+    <script>
+        function toggleService(service, action) {
+            fetch('', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `service=${service}&action=${action}`
+            }).then(res => res.json()).then(data => {
+                if (data.status === 'success') location.reload();
+                else alert('Error: ' + data.output);
+            });
+        }
+    </script>
 </head>
 <body>
-    <h2>Service Management</h2>
-    <table>
+<h1>Service Management</h1>
+<table>
+    <tr>
+        <th>Service Name</th>
+        <th>Display Service</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Enable/Disable</th>
+    </tr>
+    <?php foreach ($services as $s): ?>
+        <?php $status = getServiceStatus($s['name']); ?>
         <tr>
-            <th>Service Name</th>
-            <th>Display Service</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Enable/Disable</th>
+            <td><?= htmlspecialchars($s['name']) ?></td>
+            <td><?= htmlspecialchars($s['display']) ?></td>
+            <td><?= htmlspecialchars($s['desc']) ?></td>
+            <td><?= $status ?></td>
+            <td>
+                <?php if ($status === 'Running'): ?>
+                    <button onclick="toggleService('<?= $s['name'] ?>', 'disable')">Disable</button>
+                <?php else: ?>
+                    <button onclick="toggleService('<?= $s['name'] ?>', 'enable')">Enable</button>
+                <?php endif; ?>
+            </td>
         </tr>
-        <?php foreach ($services as $svc): 
-            $status = getStatus($svc['name']); ?>
-            <tr>
-                <td><?= htmlspecialchars($svc['name']) ?></td>
-                <td><?= htmlspecialchars($svc['display']) ?></td>
-                <td><?= htmlspecialchars($svc['description']) ?></td>
-                <td><?= $status ?></td>
-                <td>
-                    <?php if ($status === "Running"): ?>
-                        <a class="button stop" href="?action=stop&service=<?= urlencode($svc['name']) ?>">Disable</a>
-                    <?php else: ?>
-                        <a class="button" href="?action=start&service=<?= urlencode($svc['name']) ?>">Enable</a>
-                    <?php endif; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
-    <p>new code</p>
+    <?php endforeach; ?>
+</table>
 </body>
 </html>
-
-
