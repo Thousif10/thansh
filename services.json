@@ -1,0 +1,62 @@
+[
+  {
+    "unit": "nginx",
+    "name": "Nginx Web Server",
+    "display": "Nginx",
+    "desc": "Handles web requests via Nginx server"
+  },
+  {
+    "unit": "httpd",
+    "name": "Apache Web Server",
+    "display": "Apache",
+    "desc": "Serves web content using Apache HTTPD"
+  },
+  {
+    "unit": "sshd",
+    "name": "SSH Server",
+    "display": "SSH",
+    "desc": "Provides secure remote shell access"
+  },
+  {
+    "unit": "mysql",
+    "name": "MySQL Database",
+    "display": "MySQL",
+    "desc": "Relational database management service"
+  },
+  {
+    "unit": "mariadb",
+    "name": "MariaDB Database",
+    "display": "MariaDB",
+    "desc": "Drop-in replacement for MySQL"
+  },
+  {
+    "unit": "firewalld",
+    "name": "Firewall Daemon",
+    "display": "FirewallD",
+    "desc": "Dynamic firewall management tool"
+  },
+  {
+    "unit": "docker",
+    "name": "Docker Engine",
+    "display": "Docker",
+    "desc": "Container runtime and management service"
+  },
+  {
+    "unit": "cron",
+    "name": "Cron Scheduler",
+    "display": "Cron",
+    "desc": "Executes scheduled tasks"
+  },
+  {
+    "unit": "network",
+    "name": "Networking Service",
+    "display": "Network",
+    "desc": "Manages system network configuration"
+  },
+  {
+    "unit": "postfix",
+    "name": "Postfix Mail Server",
+    "display": "Postfix",
+    "desc": "Mail transfer agent for sending emails"
+  }
+]
